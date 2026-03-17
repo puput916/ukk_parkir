@@ -15,14 +15,25 @@ $laporan = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <div class="sidebar">
-        <h3>OWNER PANEL</h3>
-        <a href="laporan.php">Laporan Pendapatan</a>
-        <a href="../logout.php">Logout</a>
-    </div>
-    <div class="main-content">
-        <h2>Rekap Pendapatan</h2>
-        <table>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Owner Panel</span>
+        </div>
+        <div class="nav-links">
+            <a href="laporan.php" class="active">Laporan Pendapatan</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Rekap Pendapatan Keseluruhan</h2>
+            <button class="btn-custom" style="width: auto; padding: 10px 20px; background: #10b981;" onclick="window.print()">🖨️ Cetak Laporan</button>
+        </div>
+        <div class="table-container">
+            <table>
             <tr>
                 <th>No</th><th>Plat Nomor</th><th>Area</th><th>Waktu Keluar</th><th>Total Biaya</th>
             </tr>
@@ -30,18 +41,31 @@ $laporan = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
                 $total_semua += $row['biaya_total'];
             ?>
             <tr>
-                <td><?= $no++; ?></td>
-                <td><?= $row['plat_nomor']; ?></td>
+                <td style="color: var(--text-muted); font-weight: 500;"><?= $no++; ?></td>
+                <td style="font-weight: 600;"><?= $row['plat_nomor']; ?></td>
                 <td><?= $row['nama_area']; ?></td>
-                <td><?= $row['waktu_keluar']; ?></td>
-                <td>Rp <?= number_format($row['biaya_total']); ?></td>
+                <td style="color: var(--text-muted); font-size: 13px;"><?= date('d M Y, H:i', strtotime($row['waktu_keluar'])); ?></td>
+                <td style="font-weight: 600; color: #10b981; text-align: right;">Rp <?= number_format($row['biaya_total']); ?></td>
             </tr>
             <?php endforeach; ?>
+            <?php if(count($laporan) == 0): ?>
             <tr>
-                <th colspan="4" style="text-align: right;">TOTAL PENDAPATAN KESELURUHAN:</th>
-                <th>Rp <?= number_format($total_semua); ?></th>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Belum ada riwayat transaksi parkir.</td>
+            </tr>
+            <?php endif; ?>
+            <tr style="background-color: #f9fafb;">
+                <th colspan="4" style="text-align: right; font-size: 16px; border-bottom: none;">TOTAL PENDAPATAN BULAN INI:</th>
+                <th style="font-size: 18px; color: #10b981; border-bottom: none; text-align: right;">Rp <?= number_format($total_semua); ?></th>
             </tr>
         </table>
+        </div>
     </div>
+    <style>
+        @media print {
+            .top-nav, button { display: none !important; }
+            body { background: white; }
+            .container { box-shadow: none; margin: 0; border: none; }
+        }
+    </style>
 </body>
 </html>

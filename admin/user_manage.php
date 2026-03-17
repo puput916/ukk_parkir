@@ -20,17 +20,29 @@ $users = query("SELECT * FROM tb_user");
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <div class="sidebar">
-        <h3>ADMIN PANEL</h3>
-        <a href="dashboard.php">Dashboard</a>
-        <a href="user_manage.php">Kelola User</a>
-        <a href="tarif_manage.php">Kelola Tarif</a>
-        <a href="area_manage.php">Kelola Area Parkir</a>
-        <a href="../logout.php">Logout</a>
-    </div>
-    <div class="main-content">
-        <h2>Manajemen User</h2>
-        <form method="POST" style="background:white; padding:20px; border-radius:10px;">
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="user_manage.php" class="active">Kelola User</a>
+            <a href="tarif_manage.php">Kelola Tarif</a>
+            <a href="area_manage.php">Kelola Area</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Manajemen User</h2>
+        </div>
+        <div style="display: flex; gap: 30px; align-items: flex-start;">
+            <div class="form-card" style="flex: 1; max-width: 400px;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Tambah User Baru</h3>
+                <form method="POST">
             <input type="text" name="nama_lengkap" placeholder="Nama Lengkap" required>
             <input type="text" name="username" placeholder="Username" required>
             <input type="password" name="password" placeholder="Password" required>
@@ -39,20 +51,32 @@ $users = query("SELECT * FROM tb_user");
                 <option value="petugas">Petugas</option>
                 <option value="owner">Owner</option>
             </select>
-            <button type="submit" name="tambah" class="btn-custom">Tambah User</button>
-        </form>
+                <button type="submit" name="tambah" class="btn-custom">Tambah User</button>
+                </form>
+            </div>
 
-        <table>
-            <tr><th>Nama</th><th>Username</th><th>Role</th><th>Status</th></tr>
-            <?php foreach($users as $u): ?>
-            <tr>
-                <td><?= $u['nama_lengkap'] ?></td>
-                <td><?= $u['username'] ?></td>
-                <td><?= strtoupper($u['role']) ?></td>
-                <td><?= $u['status_aktif'] ? 'Aktif' : 'Nonaktif' ?></td>
-            </tr>
-            <?php endforeach; ?>
-        </table>
+            <div class="table-container" style="flex: 2; margin-top: 0;">
+                <table>
+                    <tr><th>Nama Lengkap</th><th>Username</th><th>Role</th><th>Status</th></tr>
+                    <?php foreach($users as $u): ?>
+                    <tr>
+                        <td><?= $u['nama_lengkap'] ?></td>
+                        <td><span style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 13px;"><?= $u['username'] ?></span></td>
+                        <td>
+                            <?php 
+                                $r = strtoupper($u['role']); 
+                                $c = $r == 'ADMIN' ? '#8b5cf6' : ($r == 'PETUGAS' ? '#3b82f6' : '#f59e0b');
+                            ?>
+                            <span style="background: <?= $c ?>20; color: <?= $c ?>; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;"><?= $r ?></span>
+                        </td>
+                        <td>
+                            <span style="color: #10b981; font-weight: 500; font-size: 13px;">● Aktif</span>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
     </div>
 </body>
 </html>
