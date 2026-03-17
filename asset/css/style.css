@@ -1,0 +1,32 @@
+:root {
+    --maroon: #800000;
+    --dark-brown: #3e2723;
+    --cream: #fdf5e6;
+    --white: #ffffff;
+}
+
+body { font-family: 'Segoe UI', sans-serif; background: var(--cream); margin: 0; }
+
+/* Login Box */
+.login-box {
+    width: 360px; margin: 100px auto; background: var(--maroon);
+    padding: 30px; border-radius: 12px; color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center;
+}
+
+.btn-brown {
+    background: var(--dark-brown); color: white; border: none;
+    padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold;
+}
+
+input, select {
+    width: 100%; padding: 12px; margin: 10px 0; border-radius: 4px;
+    border: 1px solid #ccc; box-sizing: border-box;
+}
+
+/* Dashboard Layout */
+.sidebar { width: 240px; background: var(--dark-brown); height: 100vh; position: fixed; color: white; padding: 20px; }
+.content { margin-left: 260px; padding: 25px; }
+table { width: 100%; border-collapse: collapse; background: white; }
+th { background: var(--maroon); color: white; padding: 12px; }
+td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
