@@ -1,0 +1,1091 @@
+============================================================
+ALL SOURCE CODE - UKK PARKIR PRO
+============================================================
+
+============================================================
+FILE: README.md
+============================================================
+
+# ukk_parkir
+
+============================================================
+FILE: index.php
+============================================================
+
+<?php
+session_start();
+require 'config/database.php';
+
+if (isset($_SESSION['user'])) {
+    $role = $_SESSION['user']['role'];
+    if ($role == 'admin') header("Location: admin/dashboard.php");
+    elseif ($role == 'petugas') header("Location: petugas/transaksi.php");
+    else header("Location: owner/laporan.php");
+    exit;
+}
+
+if (isset($_POST['login'])) {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = $_POST['password'];
+
+    $user = query("SELECT * FROM tb_user WHERE username = '$username' AND password = '$password' AND status_aktif = 1");
+
+    if (count($user) > 0) {
+        $_SESSION['user'] = $user[0];
+        $role = $user[0]['role'];
+
+        if ($role == 'admin') header("Location: admin/dashboard.php");
+        elseif ($role == 'petugas') header("Location: petugas/transaksi.php");
+        else header("Location: owner/laporan.php");
+    } else {
+        $error = "Akun tidak ditemukan atau tidak aktif!";
+    }
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Parkir UKK</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="login-box">
+        <h2>🅿️ PARKIR-PRO</h2>
+        <p>Silahkan masuk ke sistem</p>
+        <?php if(isset($error)) echo "<p style='color:yellow;'>$error</p>"; ?>
+        <form method="POST">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" name="login" class="btn-brown">MASUK</button>
+        </form>
+    </div>
+</body>
+</html>
+
+============================================================
+FILE: logout.php
+============================================================
+
+<?php
+session_start();
+session_destroy();
+header("Location: index.php");
+?>
+
+
+============================================================
+FILE: schema.sql
+============================================================
+
+CREATE DATABASE IF NOT EXISTS db_parkir;
+USE db_parkir;
+
+CREATE TABLE tb_user (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    nama_lengkap VARCHAR(150) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'petugas', 'owner') NOT NULL,
+    status_aktif TINYINT(1) DEFAULT 1
+);
+
+CREATE TABLE tb_area_parkir (
+    id_area INT AUTO_INCREMENT PRIMARY KEY,
+    nama_area VARCHAR(100) NOT NULL,
+    kapasitas INT NOT NULL DEFAULT 0,
+    terisi INT NOT NULL DEFAULT 0
+);
+
+CREATE TABLE tb_tarif (
+    id_tarif INT AUTO_INCREMENT PRIMARY KEY,
+    jenis_kendaraan VARCHAR(50) NOT NULL,
+    tarif_per_jam INT NOT NULL
+);
+
+CREATE TABLE tb_kendaraan (
+    id_kendaraan INT AUTO_INCREMENT PRIMARY KEY,
+    plat_nomor VARCHAR(20) NOT NULL,
+    id_user INT NOT NULL,
+    FOREIGN KEY (id_user) REFERENCES tb_user(id_user)
+);
+
+CREATE TABLE tb_transaksi (
+    id_parkir INT AUTO_INCREMENT PRIMARY KEY,
+    id_kendaraan INT NOT NULL,
+    id_tarif INT NOT NULL,
+    id_area INT NOT NULL,
+    id_user INT NOT NULL,
+    waktu_masuk DATETIME DEFAULT CURRENT_TIMESTAMP,
+    waktu_keluar DATETIME NULL,
+    durasi_jam INT NULL,
+    biaya_total INT NULL,
+    status ENUM('masuk', 'keluar') DEFAULT 'masuk',
+    FOREIGN KEY (id_kendaraan) REFERENCES tb_kendaraan(id_kendaraan),
+    FOREIGN KEY (id_tarif) REFERENCES tb_tarif(id_tarif),
+    FOREIGN KEY (id_area) REFERENCES tb_area_parkir(id_area),
+    FOREIGN KEY (id_user) REFERENCES tb_user(id_user)
+);
+
+-- Insert Dummy Data for initial testing
+INSERT INTO tb_user (nama_lengkap, username, password, role) VALUES 
+('Administrator', 'admin', 'admin123', 'admin'),
+('Petugas Jaga', 'petugas', 'petugas123', 'petugas'),
+('Bapak Owner', 'owner', 'owner123', 'owner');
+
+INSERT INTO tb_area_parkir (nama_area, kapasitas, terisi) VALUES 
+('Lantai 1 - Motor', 100, 0),
+('Lantai 1 - Mobil', 50, 0),
+('Lantai 2 - VIP', 20, 0);
+
+INSERT INTO tb_tarif (jenis_kendaraan, tarif_per_jam) VALUES 
+('Motor', 2000),
+('Mobil', 5000),
+('Truk/Bus', 10000);
+
+
+============================================================
+FILE: admin/area_manage.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') header("Location: ../index.php");
+
+if(isset($_POST['tambah'])){
+    $nama = mysqli_real_escape_string($conn, $_POST['nama_area']);
+    $kapasitas = $_POST['kapasitas'];
+    exec_query("INSERT INTO tb_area_parkir (nama_area, kapasitas) VALUES ('$nama', '$kapasitas')");
+}
+if(isset($_GET['hapus'])){
+    $id = $_GET['hapus'];
+    exec_query("DELETE FROM tb_area_parkir WHERE id_area = $id");
+    header("Location: area_manage.php");
+}
+
+$areas = query("SELECT * FROM tb_area_parkir");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kelola Area Parkir</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="user_manage.php">Kelola User</a>
+            <a href="tarif_manage.php">Kelola Tarif</a>
+            <a href="area_manage.php" class="active">Kelola Area</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Pemetaan Area Parkir</h2>
+        </div>
+        <div style="display: flex; gap: 30px; align-items: flex-start;">
+            <div class="form-card" style="flex: 1;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Tambah Lokasi Baru</h3>
+                <form method="POST">
+            <input type="text" name="nama_area" placeholder="Nama Area" required>
+            <input type="number" name="kapasitas" placeholder="Kapasitas" required>
+                <button type="submit" name="tambah" class="btn-custom">Simpan Area</button>
+                </form>
+            </div>
+
+            <div class="table-container" style="flex: 2; margin-top: 0;">
+                <table>
+                    <tr><th>Nama Area</th><th>Kapasitas Maks</th><th>Terisi Saat Ini</th><th style="text-align: right;">Aksi</th></tr>
+                    <?php foreach($areas as $a): ?>
+                    <tr>
+                        <td style="font-weight: 600;"><?= $a['nama_area'] ?></td>
+                        <td><?= $a['kapasitas'] ?> Kendaraan</td>
+                        <td>
+                            <span style="background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                <?= $a['terisi'] ?> Unit
+                            </span>
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="?hapus=<?= $a['id_area'] ?>" class="btn-custom btn-danger" style="padding: 6px 12px; font-size: 13px; width: auto;" onclick="return confirm('Hapus area permanen?')">Hapus</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+============================================================
+FILE: admin/dashboard.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') header("Location: ../index.php");
+
+$users_count = count(query("SELECT id_user FROM tb_user"));
+$area_count = count(query("SELECT id_area FROM tb_area_parkir"));
+$transaksi_aktif = count(query("SELECT id_parkir FROM tb_transaksi WHERE status='masuk'"));
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin - Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php" class="active">Dashboard</a>
+            <a href="user_manage.php">Kelola User</a>
+            <a href="tarif_manage.php">Kelola Tarif</a>
+            <a href="area_manage.php">Kelola Area</span></a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Dashboard Admin</h2>
+        </div>
+        <div class="stats-grid">
+            <div style="background: white; padding: 20px; border-radius: 10px; flex: 1; text-align: center;">
+                <h3>Total User</h3>
+                <p style="font-size: 24px; font-weight: bold;"><?= $users_count ?></p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 10px; flex: 1; text-align: center;">
+                <h3>Area Parkir</h3>
+                <p style="font-size: 24px; font-weight: bold;"><?= $area_count ?></p>
+            </div>
+            <div style="background: white; padding: 20px; border-radius: 10px; flex: 1; text-align: center;">
+                <h3>Parkir Aktif</h3>
+                <p style="font-size: 24px; font-weight: bold;"><?= $transaksi_aktif ?></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+============================================================
+FILE: admin/tarif_manage.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') header("Location: ../index.php");
+
+if(isset($_POST['tambah'])){
+    $jenis = mysqli_real_escape_string($conn, $_POST['jenis_kendaraan']);
+    $tarif = $_POST['tarif_per_jam'];
+    exec_query("INSERT INTO tb_tarif (jenis_kendaraan, tarif_per_jam) VALUES ('$jenis', '$tarif')");
+}
+if(isset($_GET['hapus'])){
+    $id = $_GET['hapus'];
+    exec_query("DELETE FROM tb_tarif WHERE id_tarif = $id");
+    header("Location: tarif_manage.php");
+}
+
+$tarifs = query("SELECT * FROM tb_tarif");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kelola Tarif</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="user_manage.php">Kelola User</a>
+            <a href="tarif_manage.php" class="active">Kelola Tarif</a>
+            <a href="area_manage.php">Kelola Area</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Daftar Tarif Kendaraan</h2>
+        </div>
+        <div style="display: flex; gap: 30px; align-items: flex-start;">
+            <div class="form-card" style="flex: 1;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Tambah Tarif Baru</h3>
+                <form method="POST">
+            <input type="text" name="jenis_kendaraan" placeholder="Jenis Kendaraan" required>
+            <input type="number" name="tarif_per_jam" placeholder="Tarif Per Jam" required>
+                <button type="submit" name="tambah" class="btn-custom">Simpan Tarif</button>
+                </form>
+            </div>
+
+            <div class="table-container" style="flex: 2; margin-top: 0;">
+                <table>
+                    <tr><th>ID Tarif</th><th>Kategori Kendaraan</th><th>Harga Per Jam</th><th style="text-align: right;">Aksi</th></tr>
+                    <?php foreach($tarifs as $t): ?>
+                    <tr>
+                        <td style="color: var(--text-muted); font-family: monospace;">#<?= $t['id_tarif'] ?></td>
+                        <td style="font-weight: 600;"><?= $t['jenis_kendaraan'] ?></td>
+                        <td style="color: #10b981; font-weight: 600;">Rp <?= number_format($t['tarif_per_jam']) ?></td>
+                        <td style="text-align: right;">
+                            <a href="?hapus=<?= $t['id_tarif'] ?>" class="btn-custom btn-danger" style="padding: 6px 12px; font-size: 13px; width: auto;" onclick="return confirm('Yakin ingin menghapus tarif <?= $t['jenis_kendaraan'] ?>?')">Hapus</a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+============================================================
+FILE: admin/user_manage.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') header("Location: ../index.php");
+
+if(isset($_POST['tambah'])){
+    $nama = $_POST['nama_lengkap'];
+    $user = $_POST['username'];
+    $pass = $_POST['password'];
+    $role = $_POST['role'];
+    exec_query("INSERT INTO tb_user (nama_lengkap, username, password, role) VALUES ('$nama', '$user', '$pass', '$role')");
+}
+
+$users = query("SELECT * FROM tb_user");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kelola User</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.php">Dashboard</a>
+            <a href="user_manage.php" class="active">Kelola User</a>
+            <a href="tarif_manage.php">Kelola Tarif</a>
+            <a href="area_manage.php">Kelola Area</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Manajemen User</h2>
+        </div>
+        <div style="display: flex; gap: 30px; align-items: flex-start;">
+            <div class="form-card" style="flex: 1; max-width: 400px;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Tambah User Baru</h3>
+                <form method="POST">
+            <input type="text" name="nama_lengkap" placeholder="Nama Lengkap" required>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <select name="role">
+                <option value="admin">Admin</option>
+                <option value="petugas">Petugas</option>
+                <option value="owner">Owner</option>
+            </select>
+                <button type="submit" name="tambah" class="btn-custom">Tambah User</button>
+                </form>
+            </div>
+
+            <div class="table-container" style="flex: 2; margin-top: 0;">
+                <table>
+                    <tr><th>Nama Lengkap</th><th>Username</th><th>Role</th><th>Status</th></tr>
+                    <?php foreach($users as $u): ?>
+                    <tr>
+                        <td><?= $u['nama_lengkap'] ?></td>
+                        <td><span style="background: #f3f4f6; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 13px;"><?= $u['username'] ?></span></td>
+                        <td>
+                            <?php 
+                                $r = strtoupper($u['role']); 
+                                $c = $r == 'ADMIN' ? '#8b5cf6' : ($r == 'PETUGAS' ? '#3b82f6' : '#f59e0b');
+                            ?>
+                            <span style="background: <?= $c ?>20; color: <?= $c ?>; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;"><?= $r ?></span>
+                        </td>
+                        <td>
+                            <span style="color: #10b981; font-weight: 500; font-size: 13px;">● Aktif</span>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+============================================================
+FILE: assets/css/style.css
+============================================================
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-main: #f3f4f6;
+    --bg-card: #ffffff;
+    --text-dark: #1f2937;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    margin-top: 0;
+    color: var(--text-dark);
+}
+
+/* Login Box */
+.login-box {
+    width: 380px;
+    margin: 120px auto;
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.login-box h2 {
+    font-weight: 700;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.login-box p {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+/* Forms & Inputs */
+input, select {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+label {
+    display: block;
+    text-align: left;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+}
+
+/* Buttons */
+button, .btn-custom {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.2s, transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+button:hover, .btn-custom:hover {
+    background: var(--primary-hover);
+}
+
+button:active, .btn-custom:active {
+    transform: scale(0.98);
+}
+
+.btn-danger {
+    background: #ef4444;
+}
+.btn-danger:hover { background: #dc2626; }
+
+/* Top Navbar */
+.top-nav {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand {
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: var(--text-dark);
+    background: var(--bg-main);
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-logout {
+    color: #ef4444;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 6px 14px;
+    border: 1px solid #fee2e2;
+    background: #fef2f2;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.nav-logout:hover {
+    background: #fee2e2;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Dashboard Cards */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* Tables */
+.table-container {
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #f9fafb;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dark);
+    font-size: 15px;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #f9fafb;
+}
+
+.action-link {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Forms Container */
+.form-card {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    max-width: 600px;
+}
+
+============================================================
+FILE: config/database.php
+============================================================
+
+<?php
+$host = "127.0.0.1";
+$user = "root";
+$pass = "";
+$db   = "db_parkir";
+
+$conn = mysqli_connect($host, $user, $pass, $db);
+
+if (!$conn) {
+    die("Koneksi Database Gagal: " . mysqli_connect_error());
+}
+
+function query($sql) {
+    global $conn;
+    $result = mysqli_query($conn, $sql);
+    $rows = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
+
+function exec_query($sql) {
+    global $conn;
+    return mysqli_query($conn, $sql);
+}
+?>
+
+
+============================================================
+FILE: config/helper.php
+============================================================
+
+<?php
+function hitungBiaya($waktu_masuk, $waktu_keluar, $tarif_per_jam) {
+    $masuk = new DateTime($waktu_masuk);
+    $keluar = new DateTime($waktu_keluar);
+    $selisih = $masuk->diff($keluar);
+    
+    $jam = $selisih->h + ($selisih->days * 24);
+    
+    if ($selisih->i > 0 || $selisih->s > 0) {
+        $jam++;
+    }
+    
+    $total_jam = ($jam == 0) ? 1 : $jam;
+    
+    return [
+        'durasi' => $total_jam,
+        'total'  => $total_jam * $tarif_per_jam
+    ];
+}
+?>
+
+============================================================
+FILE: owner/laporan.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'owner') header("Location: ../index.php");
+
+$laporan = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
+                  JOIN tb_kendaraan k ON t.id_kendaraan = k.id_kendaraan
+                  JOIN tb_area_parkir a ON t.id_area = a.id_area
+                  WHERE t.status = 'keluar' ORDER BY t.waktu_keluar DESC");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Owner - Laporan</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Owner Panel</span>
+        </div>
+        <div class="nav-links">
+            <a href="laporan.php" class="active">Laporan Pendapatan</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Rekap Pendapatan Keseluruhan</h2>
+            <button class="btn-custom" style="width: auto; padding: 10px 20px; background: #10b981;" onclick="window.print()">🖨️ Cetak Laporan</button>
+        </div>
+        <div class="table-container">
+            <table>
+            <tr>
+                <th>No</th><th>Plat Nomor</th><th>Area</th><th>Waktu Keluar</th><th>Total Biaya</th>
+            </tr>
+            <?php $no=1; $total_semua=0; foreach($laporan as $row) : 
+                $total_semua += $row['biaya_total'];
+            ?>
+            <tr>
+                <td style="color: var(--text-muted); font-weight: 500;"><?= $no++; ?></td>
+                <td style="font-weight: 600;"><?= $row['plat_nomor']; ?></td>
+                <td><?= $row['nama_area']; ?></td>
+                <td style="color: var(--text-muted); font-size: 13px;"><?= date('d M Y, H:i', strtotime($row['waktu_keluar'])); ?></td>
+                <td style="font-weight: 600; color: #10b981; text-align: right;">Rp <?= number_format($row['biaya_total']); ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if(count($laporan) == 0): ?>
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Belum ada riwayat transaksi parkir.</td>
+            </tr>
+            <?php endif; ?>
+            <tr style="background-color: #f9fafb;">
+                <th colspan="4" style="text-align: right; font-size: 16px; border-bottom: none;">TOTAL PENDAPATAN BULAN INI:</th>
+                <th style="font-size: 18px; color: #10b981; border-bottom: none; text-align: right;">Rp <?= number_format($total_semua); ?></th>
+            </tr>
+        </table>
+        </div>
+    </div>
+    <style>
+        @media print {
+            .top-nav, button { display: none !important; }
+            body { background: white; }
+            .container { box-shadow: none; margin: 0; border: none; }
+        }
+    </style>
+</body>
+</html>
+
+============================================================
+FILE: petugas/cetak_struk.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'petugas') header("Location: ../index.php");
+
+$id = $_GET['id'];
+$tr = query("SELECT t.*, k.plat_nomor, a.nama_area, r.jenis_kendaraan FROM tb_transaksi t
+             JOIN tb_kendaraan k ON t.id_kendaraan = k.id_kendaraan
+             JOIN tb_area_parkir a ON t.id_area = a.id_area
+             JOIN tb_tarif r ON t.id_tarif = r.id_tarif
+             WHERE t.id_parkir = $id");
+
+if(count($tr) == 0) die("Struk tidak ditemukan");
+$data = $tr[0];
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Struk Parkir</title>
+    <style>
+        body { font-family: monospace; width: 300px; margin: auto; padding: 20px; border: 1px dashed black; }
+        .text-center { text-align: center; }
+        .dashed { border-top: 1px dashed black; margin: 10px 0; }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="text-center">
+        <h2>PARKIR-PRO</h2>
+        <p>Struk Bukti Pembayaran Parkir</p>
+    </div>
+    <div class="dashed"></div>
+    <p>ID Parkir : <?= $data['id_parkir'] ?></p>
+    <p>Plat Nomor: <?= $data['plat_nomor'] ?></p>
+    <p>Kendaraan : <?= $data['jenis_kendaraan'] ?></p>
+    <p>Area Parkir: <?= $data['nama_area'] ?></p>
+    <p>Masuk  : <?= $data['waktu_masuk'] ?></p>
+    <p>Keluar : <?= $data['waktu_keluar'] ?></p>
+    <p>Durasi : <?= $data['durasi_jam'] ?> jam</p>
+    <div class="dashed"></div>
+    <h3 class="text-center">TOTAL: Rp <?= number_format($data['biaya_total']) ?></h3>
+    <div class="dashed"></div>
+    <div class="text-center" style="margin-top:20px;">
+        <p>Terima Kasih</p>
+        <button onclick="window.location.href='transaksi.php'" class="no-print">Kembali</button>
+    </div>
+    <style> @media print { .no-print { display: none; } } </style>
+</body>
+</html>
+
+
+============================================================
+FILE: petugas/keluar.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'petugas') header("Location: ../index.php");
+include '../config/helper.php';
+
+$id = $_GET['id'];
+$now = date('Y-m-d H:i:s');
+
+$tr = query("SELECT t.*, r.tarif_per_jam FROM tb_transaksi t 
+             JOIN tb_tarif r ON t.id_tarif = r.id_tarif WHERE id_parkir = $id")[0];
+
+$kalkulasi = hitungBiaya($tr['waktu_masuk'], $now, $tr['tarif_per_jam']);
+
+mysqli_query($conn, "UPDATE tb_transaksi SET 
+    waktu_keluar = '$now', 
+    durasi_jam = '{$kalkulasi['durasi']}', 
+    biaya_total = '{$kalkulasi['total']}', 
+    status = 'keluar' 
+    WHERE id_parkir = $id");
+
+mysqli_query($conn, "UPDATE tb_area_parkir SET terisi = terisi - 1 WHERE id_area = {$tr['id_area']}");
+
+header("Location: cetak_struk.php?id=$id");
+?>
+
+============================================================
+FILE: petugas/masuk.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'petugas') header("Location: ../index.php");
+
+if (isset($_POST['simpan'])) {
+    $plat = $_POST['plat_nomor'];
+    $area = $_POST['id_area'];
+    $tarif = $_POST['id_tarif'];
+    $user_id = $_SESSION['user']['id_user'];
+
+    mysqli_query($conn, "INSERT INTO tb_kendaraan (plat_nomor, id_user) VALUES ('$plat', '$user_id')");
+    $id_knd = mysqli_insert_id($conn);
+
+    mysqli_query($conn, "INSERT INTO tb_transaksi (id_kendaraan, id_tarif, id_area, id_user, status) 
+                         VALUES ('$id_knd', '$tarif', '$area', '$user_id', 'masuk')");
+    
+    mysqli_query($conn, "UPDATE tb_area_parkir SET terisi = terisi + 1 WHERE id_area = $area");
+
+    header("Location: transaksi.php");
+    exit();
+}
+
+$areas = query("SELECT * FROM tb_area_parkir WHERE kapasitas > terisi");
+$tarifs = query("SELECT * FROM tb_tarif");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check-In Parkir</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
+        </div>
+        <div class="nav-links">
+            <a href="transaksi.php">Parkir Aktif</a>
+            <a href="masuk.php" class="active">Check-In Kendaraan</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: center;">
+            <div class="form-card" style="width: 100%; max-width: 500px;">
+                <h2 style="margin-top: 0; margin-bottom: 24px; text-align: center;">Entry Parkir Kendaraan</h2>
+                <form method="POST">
+            <label>Plat Nomor</label>
+            <input type="text" name="plat_nomor" placeholder="Contoh: B 1234 ABC" required>
+            
+            <label>Jenis Kendaraan</label>
+            <select name="id_tarif" required>
+                <?php foreach($tarifs as $t): ?>
+                    <option value="<?= $t['id_tarif'] ?>"><?= $t['jenis_kendaraan'] ?> - Rp <?= number_format($t['tarif_per_jam']) ?>/jam</option>
+                <?php endforeach; ?>
+            </select>
+
+            <label>Area Parkir</label>
+            <select name="id_area" required>
+                <?php foreach($areas as $a): ?>
+                    <option value="<?= $a['id_area'] ?>"><?= $a['nama_area'] ?> (Tersedia: <?= $a['kapasitas'] - $a['terisi'] ?>)</option>
+                <?php endforeach; ?>
+            </select>
+
+            <button type="submit" name="simpan" class="btn-custom" style="margin-top: 20px; padding: 14px; font-size: 16px;">Konfirmasi & Simpan Tiket</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+============================================================
+FILE: petugas/transaksi.php
+============================================================
+
+<?php
+session_start();
+include '../config/database.php';
+if(!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'petugas') header("Location: ../index.php");
+
+$aktif = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t 
+                JOIN tb_kendaraan k ON t.id_kendaraan = k.id_kendaraan 
+                JOIN tb_area_parkir a ON t.id_area = a.id_area 
+                WHERE t.status = 'masuk'");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Petugas - Transaksi</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-brand">
+            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
+        </div>
+        <div class="nav-links">
+            <a href="transaksi.php" class="active">Parkir Aktif</a>
+            <a href="masuk.php">Check-In Kendaraan</a>
+        </div>
+        <div class="nav-user">
+            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
+            <a href="../logout.php" class="nav-logout">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2>Daftar Kendaraan Sedang Parkir</h2>
+            <a href="masuk.php" class="btn-custom" style="width: auto; padding: 10px 20px;">+ Check-In Baru</a>
+        </div>
+        <div class="table-container">
+            <tr>
+                <th>Plat Nomor</th><th>Area</th><th>Waktu Masuk</th><th>Aksi</th>
+            </tr>
+            <?php foreach($aktif as $row): ?>
+            <tr>
+                <td style="font-weight: 600;"><?= $row['plat_nomor'] ?></td>
+                <td><?= $row['nama_area'] ?></td>
+                <td style="color: var(--text-muted);"><?= $row['waktu_masuk'] ?></td>
+                <td style="text-align: right;"><a href="keluar.php?id=<?= $row['id_parkir'] ?>" class="btn-custom btn-danger" style="padding: 6px 16px; font-size: 13px; width: auto;" onclick="return confirm('Proses Check-Out kendaraan ini?')">Check-Out</a></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if(count($aktif) == 0): ?>
+            <tr>
+                <td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">Tidak ada kendaraan yang sedang parkir saat ini.</td>
+            </tr>
+            <?php endif; ?>
+        </table>
+        </div>
+    </div>
+</body>
+</html>
+

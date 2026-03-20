@@ -1,0 +1,83 @@
+============================================================
+MATERI LAPORAN KARYA PROJEK: SISTEM INFORMASI PENGELOLAAN PARKIR (UKK)
+============================================================
+
+1. JUDUL PROJEK
+------------------------------------------------------------
+Aplikasi Pengelolaan Parkir Berbasis Web (Parkir Pro)
+
+2. DESKRIPSI SINGKAT APLIKASI
+------------------------------------------------------------
+Parkir Pro adalah sebuah sistem informasi berbasis web tingkat lanjut yang dirancang untuk mempermudah dan mendigitalisasi proses pengelolaan parkir kendaraan di suatu area/gedung. Aplikasi ini mempermudah pencatatan kendaraan yang masuk dan keluar, perhitungan tarif berdasarkan jam secara presisi, pengelolaan area kapasitas parkir agar tidak penuh, hingga pengolahan data pelaporan transaksi bulanan dan harian.
+
+3. TEKNOLOGI YANG DIGUNAKAN
+------------------------------------------------------------
+a. Bahasa Pemrograman: PHP (Native/Procedural)
+b. Antarmuka Pengguna (UI/Front-End): HTML5, CSS3 murni (Modern UI, Flexbox, Variable root) 
+c. Logika Proses/Validasi: JavaScript (JS) ringan jika dibutuhkan untuk aksi cetak (window.print).
+d. Basis Data: MySQL / MariaDB (via db_parkir)
+e. Server Web Lokal: XAMPP / Apache
+
+4. STRUKTUR BASIS DATA (DATABASE)
+------------------------------------------------------------
+Aplikasi menggunakan database bernama `db_parkir` dengan 5 tabel relasional:
+1) tb_user: Relasi akun pengguna beserta level hak akses (role).
+   - Kolom kunci: id_user (PK), nama_lengkap, username, password, role ('admin', 'petugas', 'owner'), status_aktif.
+2) tb_area_parkir: Relasi area lahan atau lokasi parkir.
+   - Kolom kunci: id_area (PK), nama_area, kapasitas, terisi.
+3) tb_tarif: Relasi jenis kendaraan dan patokan tarif per jam.
+   - Kolom kunci: id_tarif (PK), jenis_kendaraan, tarif_per_jam.
+4) tb_kendaraan: Relasi plat nomor kendaraan pelanggan.
+   - Kolom kunci: id_kendaraan (PK), plat_nomor, id_user (FK penjaga lapang).
+5) tb_transaksi: Otak utama aplikasi yang merekam tiket per kendaraan. 
+   - Kolom kunci: id_parkir (PK), id_kendaraan (FK), id_tarif (FK), id_area (FK), id_user (FK), waktu_masuk, waktu_keluar, durasi_jam, biaya_total, status ('masuk', 'keluar').
+
+5. ENTITAS PENGGUNA (ROLE) & HAK AKSES
+------------------------------------------------------------
+Sistem terintegrasi dengan 3 tingkat pengguna:
+
+A. ADMIN (Administrator)
+Fokus pada kontrol data master (Back-office).
+- Login dan Logout yang aman via Session.
+- Dasbor/Dashboard statistik utama real-time.
+- Kelola User: Tambah/Edit/Hapus dan Aktivasi petugas/pemilik.
+- Kelola Tarif: Ubah biaya parkir tipe kendaraan.
+- Kelola Area Parkir: Atur kapasitas ruang / zona parkir.
+
+B. PETUGAS (Operator Lapangan / Kasir Gerbang)
+Fokus pada eksekusi lapangan keluar/masuk kendaraan.
+- Gate In (Masuk): Mencatat plat nomor dan menetapkan zona parkir. Waktu masuk (waktu_masuk) dicatat real-time, dan slot 'terisi' area bertambah.
+- Gate Out (Keluar): Menandai kendaraan keluar. Sistem otomatis mengakumulasi lama waktu_keluar dan durasi_jam, kemudian dikalikan tarif area. Menghasilkan 'biaya_total' valid.
+- Mencetak Struk/Karcis sebagai bukti fisik pembayaran.
+
+C. OWNER (Pemilik / Manajerial)
+Fokus pada pengawasan, monitoring, dan evaluasi hasil kerja.
+- Dashboard visualisasi total pendapatan.
+- Laporan Transaksi: Melihat detail rekapan seluruh mutasi data kendaraan yang telah selesai status parkirnya.
+- Laporan Filter Tanggal & Export Excel: Untuk memudahkan analisis keuangan (pembukuan).
+
+6. ALUR KERJA APLIKASI (WORKFLOW STANDARD)
+------------------------------------------------------------
+1) Persiapan (Admin Setup)
+Admin mengatur data awal seperti tarif flat (Mobil: 5000/jam, Motor: 2000/jam) dan mendaftarkan area blok lantai beserta kapasitas maksimumnya.
+
+2) Transaksi Kendaraan Datang (Petugas In)
+Mobil masuk gerbang -> Petugas memasukkan Plat Nomor & Jenis -> Memilih Blok Lantai -> Tiket tercatat -> Kuota blok otomatis terpotong (pintu dibuka).
+
+3) Transaksi Kendaraan Keluar (Petugas Out)
+Mobil menuju pintu keluar -> Petugas mencari plat atau id struk -> Klik tombol "Keluar" -> Sistem deteksi durasi berapa jam terparkir -> Nominal biaya tampil dinamis -> Transaksi sukses dibayar, kuota bangku kosong area dikembalikan (status=Keluar). Struk diserahkan ke pelanggan.
+
+4) Pelaporan Laba Rugi (Owner)
+Minggu/Bulan berakhir, Owner masuk ke dalam web, menyaring dari tanggal 1 sampai 30, melihat total uang yang masuk per jenis kendaraan dan memindahkannya (Export) menjadi dokumen Microsoft Excel / CSV.
+
+7. NILAI TAMBAH INOVASI (PLUS-VALUE) APLIKASI
+------------------------------------------------------------
+- Full Paperless Storage (Tersimpan rapi di DB, mencegah kehilangan catatan buku manual).
+- Akuntansi Waktu Real-Time: Perhitungan uang dilakukan otomatis oleh function TIMESTAMP DIFF database/PHP meminimalisir 'human error'.
+- Integrasi Kapasitas Area Cerdas: Mencegah kepadatan dalam area karena sistem akan menolak atau mendeteksi jika kapasitas (`terisi` = `kapasitas`) sudah terpenuhi.
+- UI/UX Masa Kini: Menggunakan teknik Modern CSS Flexbox dengan pola Navigasi Atas (Top-Bar), Clean White & Gray style menjadikannya tampak premium dan profesional ketimbang tugas reguler.
+- Aktivitas tercatat by User: Tindakan salah selalu terlacak karena melekat pada siapa (id_user petugas) yang menerima uang.
+
+============================================================
+*Dokumen ini merupakan intisari untuk digunakan sebagai Laporan UKK*
+============================================================
