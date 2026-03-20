@@ -36,7 +36,7 @@ if (isset($_POST['login'])) {
 </head>
 <body>
     <div class="login-box">
-        <h2>🅿️ PARKIR-PRO</h2>
+        <h2>PARKIR-PRO</h2>
         <p>Silahkan masuk ke sistem</p>
         <?php if(isset($error)) echo "<p style='color:yellow;'>$error</p>"; ?>
         <form method="POST">

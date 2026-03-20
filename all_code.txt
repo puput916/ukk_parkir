@@ -50,7 +50,7 @@ if (isset($_POST['login'])) {
 </head>
 <body>
     <div class="login-box">
-        <h2>🅿️ PARKIR-PRO</h2>
+        <h2>PARKIR-PRO</h2>
         <p>Silahkan masuk ke sistem</p>
         <?php if(isset($error)) echo "<p style='color:yellow;'>$error</p>"; ?>
         <form method="POST">
@@ -174,7 +174,7 @@ $areas = query("SELECT * FROM tb_area_parkir");
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
         </div>
         <div class="nav-links">
             <a href="dashboard.php">Dashboard</a>
@@ -248,7 +248,7 @@ $transaksi_aktif = count(query("SELECT id_parkir FROM tb_transaksi WHERE status=
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
         </div>
         <div class="nav-links">
             <a href="dashboard.php" class="active">Dashboard</a>
@@ -315,7 +315,7 @@ $tarifs = query("SELECT * FROM tb_tarif");
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
         </div>
         <div class="nav-links">
             <a href="dashboard.php">Dashboard</a>
@@ -391,7 +391,7 @@ $users = query("SELECT * FROM tb_user");
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
         </div>
         <div class="nav-links">
             <a href="dashboard.php">Dashboard</a>
@@ -810,7 +810,7 @@ $laporan = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Owner Panel</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Owner Panel</span>
         </div>
         <div class="nav-links">
             <a href="laporan.php" class="active">Laporan Pendapatan</a>
@@ -823,7 +823,7 @@ $laporan = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h2>Rekap Pendapatan Keseluruhan</h2>
-            <button class="btn-custom" style="width: auto; padding: 10px 20px; background: #10b981;" onclick="window.print()">🖨️ Cetak Laporan</button>
+            <button class="btn-custom" style="width: auto; padding: 10px 20px; background: #10b981;" onclick="window.print()">Cetak Laporan</button>
         </div>
         <div class="table-container">
             <table>
@@ -986,7 +986,7 @@ $tarifs = query("SELECT * FROM tb_tarif");
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
         </div>
         <div class="nav-links">
             <a href="transaksi.php">Parkir Aktif</a>
@@ -1050,7 +1050,7 @@ $aktif = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
         </div>
         <div class="nav-links">
             <a href="transaksi.php" class="active">Parkir Aktif</a>

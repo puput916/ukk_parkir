@@ -25,13 +25,14 @@ $tarifs = query("SELECT * FROM tb_tarif");
 <body>
     <nav class="top-nav">
         <div class="nav-brand">
-            🅿️ PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
+            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
         </div>
         <div class="nav-links">
             <a href="dashboard.php">Dashboard</a>
             <a href="user_manage.php">Kelola User</a>
             <a href="tarif_manage.php" class="active">Kelola Tarif</a>
             <a href="area_manage.php">Kelola Area</a>
+            <a href="log_aktivitas.php">Log Aktivitas</a>
         </div>
         <div class="nav-user">
             <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
@@ -40,7 +41,7 @@ $tarifs = query("SELECT * FROM tb_tarif");
     </nav>
     <div class="container">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2>Daftar Tarif Kendaraan</h2>
+            <h2>Kelola tarif</h2>
         </div>
         <div style="display: flex; gap: 30px; align-items: flex-start;">
             <div class="form-card" style="flex: 1;">
