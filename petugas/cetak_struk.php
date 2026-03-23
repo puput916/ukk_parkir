@@ -25,7 +25,7 @@ $data = $tr[0];
 </head>
 <body onload="window.print()">
     <div class="text-center">
-        <h2>PARKIR-PRO</h2>
+        <h2>Flam Parking</h2>
         <p>Struk Bukti Pembayaran Parkir</p>
     </div>
     <div class="dashed"></div>

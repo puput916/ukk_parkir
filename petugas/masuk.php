@@ -32,46 +32,48 @@ $tarifs = query("SELECT * FROM tb_tarif");
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="top-nav">
-        <div class="nav-brand">
-            <i class="fa-solid fa-square-parking"></i> PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
-        </div>
-        <div class="nav-links">
-            <a href="transaksi.php">Parkir Aktif</a>
-            <a href="masuk.php" class="active">Check-In Kendaraan</a>
-            <a href="keluar.php">Check-Out Kendaraan</a>
-        </div>
-        <div class="nav-user">
-            <span style="font-size: 14px; font-weight: 600;"><i class="fa-regular fa-circle-user" style="margin-right: 6px;"></i><?= $_SESSION['user']['nama_lengkap'] ?></span>
-            <a href="../logout.php" class="nav-logout"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 4px;"></i> Logout</a>
-        </div>
-    </nav>
-    <div class="container">
-        <div style="display: flex; justify-content: center;">
-            <div class="form-card" style="width: 100%; max-width: 500px;">
-                <h2 style="margin-top: 0; margin-bottom: 24px; text-align: center;"><i class="fa-solid fa-id-card-clip" style="color: var(--primary); margin-right: 8px;"></i> Entry Parkir Kendaraan</h2>
-                <form method="POST">
-                    <label><i class="fa-solid fa-car-side" style="margin-right: 5px; color: var(--text-muted);"></i> Plat Nomor</label>
-                    <input type="text" name="plat_nomor" placeholder="Contoh: B 1234 ABC" required style="font-family: monospace; font-size: 16px; font-weight: bold; text-transform: uppercase;">
-                    
-                    <label><i class="fa-solid fa-tag" style="margin-right: 5px; color: var(--text-muted);"></i> Jenis Kendaraan</label>
-                    <select name="id_tarif" required>
-                        <?php foreach($tarifs as $t): ?>
-                            <option value="<?= $t['id_tarif'] ?>"><?= $t['jenis_kendaraan'] ?> - Rp <?= number_format($t['tarif_per_jam']) ?>/jam</option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <label><i class="fa-solid fa-layer-group" style="margin-right: 5px; color: var(--text-muted);"></i> Area Parkir</label>
-                    <select name="id_area" required>
-                        <?php foreach($areas as $a): ?>
-                            <option value="<?= $a['id_area'] ?>"><?= $a['nama_area'] ?> (Tersedia: <?= $a['kapasitas'] - $a['terisi'] ?>)</option>
-                        <?php endforeach; ?>
-                    </select>
-
-                    <button type="submit" name="simpan" class="btn-custom" style="margin-top: 24px; padding: 14px; font-size: 16px; border-radius: 12px;"><i class="fa-solid fa-check-circle" style="margin-right: 5px;"></i> Konfirmasi & Simpan Tiket</button>
-                </form>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><img src="../assets/logo_web.png" alt="Logo"></div>
+            <div class="sidebar-label">Menu</div>
+                        <ul class="sidebar-menu">
+                <a href="transaksi.php" ><span class="icon-box"><i class="fa-solid fa-car-side"></i></span> <span>Parkir Aktif</span></a>
+                <a href="masuk.php" class="active"><span class="icon-box"><i class="fa-solid fa-right-to-bracket"></i></span> <span>Check-In</span></a>
+                <a href="keluar.php" ><span class="icon-box"><i class="fa-solid fa-right-from-bracket"></i></span> <span>Check-Out</span></a>
+            </ul>
+            <div class="sidebar-user">
+                <div class="sidebar-user-info"><div class="avatar"><i class="fa-solid fa-user"></i></div><div class="user-detail"><span><?= $_SESSION['user']['nama_lengkap'] ?></span><small><?= $_SESSION['user']['role'] ?></small></div></div>
+                <a href="../logout.php" class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
-        </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header"><h1><i class="fa-solid fa-id-card-clip"></i>Entry Parkir Kendaraan</h1></div>
+            <div style="display: flex; justify-content: center;">
+                <div class="form-card" style="width: 100%; max-width: 480px;">
+                    <form method="POST">
+                        <label><i class="fa-solid fa-car-side" style="margin-right: 5px; color: var(--text-muted);"></i> Plat Nomor</label>
+                        <input type="text" name="plat_nomor" placeholder="Contoh: B 1234 ABC" required style="font-family: monospace; font-size: 16px; font-weight: bold; text-transform: uppercase;">
+                        
+                        <label><i class="fa-solid fa-tag" style="margin-right: 5px; color: var(--text-muted);"></i> Jenis Kendaraan</label>
+                        <select name="id_tarif" required>
+                            <?php foreach($tarifs as $t): ?>
+                                <option value="<?= $t['id_tarif'] ?>"><?= $t['jenis_kendaraan'] ?> - Rp <?= number_format($t['tarif_per_jam']) ?>/jam</option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <label><i class="fa-solid fa-layer-group" style="margin-right: 5px; color: var(--text-muted);"></i> Area Parkir</label>
+                        <select name="id_area" required>
+                            <?php foreach($areas as $a): ?>
+                                <option value="<?= $a['id_area'] ?>"><?= $a['nama_area'] ?> (Tersedia: <?= $a['kapasitas'] - $a['terisi'] ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <button type="submit" name="simpan" class="btn-custom" style="margin-top: 10px; padding: 14px; font-size: 16px;"><i class="fa-solid fa-check-circle"></i> Konfirmasi & Simpan Tiket</button>
+                    </form>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>

@@ -21,58 +21,60 @@ $areas = query("SELECT * FROM tb_area_parkir");
 <head>
     <title>Kelola Area Parkir</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="top-nav">
-        <div class="nav-brand">
-            PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Admin</span>
-        </div>
-        <div class="nav-links">
-            <a href="dashboard.php">Dashboard</a>
-            <a href="user_manage.php">Kelola User</a>
-            <a href="tarif_manage.php">Kelola Tarif</a>
-            <a href="area_manage.php" class="active">Kelola Area</a>
-            <a href="log_aktivitas.php">Log Aktivitas</a>
-        </div>
-        <div class="nav-user">
-            <span style="font-size: 14px; font-weight: 600;"><?= $_SESSION['user']['nama_lengkap'] ?></span>
-            <a href="../logout.php" class="nav-logout">Logout</a>
-        </div>
-    </nav>
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-            <h2>Kelola Area</h2>
-        </div>
-        <div style="display: flex; gap: 30px; align-items: flex-start;">
-            <div class="form-card" style="flex: 1;">
-                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px;">Tambah Lokasi Baru</h3>
-                <form method="POST">
-            <input type="text" name="nama_area" placeholder="Nama Area" required>
-            <input type="number" name="kapasitas" placeholder="Kapasitas" required>
-                <button type="submit" name="tambah" class="btn-custom">Simpan Area</button>
-                </form>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><img src="../assets/logo_web.png" alt="Logo"></div>
+            <div class="sidebar-label">Menu</div>
+                        <ul class="sidebar-menu">
+                <a href="dashboard.php" ><span class="icon-box"><i class="fa-solid fa-gauge-high"></i></span> <span>Dashboard</span></a>
+                <a href="user_manage.php" ><span class="icon-box"><i class="fa-solid fa-users"></i></span> <span>Kelola User</span></a>
+                <a href="tarif_manage.php" ><span class="icon-box"><i class="fa-solid fa-tags"></i></span> <span>Kelola Tarif</span></a>
+                <a href="area_manage.php" class="active"><span class="icon-box"><i class="fa-solid fa-map-location-dot"></i></span> <span>Kelola Area</span></a>
+                <a href="log_aktivitas.php" ><span class="icon-box"><i class="fa-solid fa-clock-rotate-left"></i></span> <span>Log Aktivitas</span></a>
+            </ul>
+            <div class="sidebar-user">
+                <div class="sidebar-user-info"><div class="avatar"><i class="fa-solid fa-user"></i></div><div class="user-detail"><span><?= $_SESSION['user']['nama_lengkap'] ?></span><small><?= $_SESSION['user']['role'] ?></small></div></div>
+                <a href="../logout.php" class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
+        </aside>
 
-            <div class="table-container" style="flex: 2; margin-top: 0;">
-                <table>
-                    <tr><th>Nama Area</th><th>Kapasitas Maks</th><th>Terisi Saat Ini</th><th style="text-align: right;">Aksi</th></tr>
-                    <?php foreach($areas as $a): ?>
-                    <tr>
-                        <td style="font-weight: 600;"><?= $a['nama_area'] ?></td>
-                        <td><?= $a['kapasitas'] ?> Kendaraan</td>
-                        <td>
-                            <span style="background: #eef2ff; color: #4f46e5; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                <?= $a['terisi'] ?> Unit
-                            </span>
-                        </td>
-                        <td style="text-align: right;">
-                            <a href="?hapus=<?= $a['id_area'] ?>" class="btn-custom btn-danger" style="padding: 6px 12px; font-size: 13px; width: auto;" onclick="return confirm('Hapus area permanen?')">Hapus</a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </table>
+        <main class="main-content">
+            <div class="page-header"><h1><i class="fa-solid fa-map-location-dot"></i>Pemetaan Area Parkir</h1></div>
+
+            <div style="display: flex; gap: 28px; align-items: flex-start;">
+                <div class="form-card" style="flex: 1; max-width: 380px;">
+                    <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 16px; font-weight: 700;"><i class="fa-solid fa-plus-circle" style="margin-right: 8px; color: var(--pink-400);"></i>Tambah Lokasi Baru</h3>
+                    <form method="POST">
+                        <label><i class="fa-solid fa-location-dot" style="margin-right: 5px; color: var(--text-muted);"></i> Nama Area</label>
+                        <input type="text" name="nama_area" placeholder="Nama Area" required>
+                        <label><i class="fa-solid fa-hashtag" style="margin-right: 5px; color: var(--text-muted);"></i> Kapasitas</label>
+                        <input type="number" name="kapasitas" placeholder="Kapasitas" required>
+                        <button type="submit" name="tambah" class="btn-custom"><i class="fa-solid fa-plus"></i> Simpan Area</button>
+                    </form>
+                </div>
+
+                <div class="table-container" style="flex: 2;">
+                    <table>
+                        <thead><tr><th>Nama Area</th><th>Kapasitas Maks</th><th>Terisi</th><th style="text-align: right;">Aksi</th></tr></thead>
+                        <tbody>
+                            <?php foreach($areas as $a): ?>
+                            <tr>
+                                <td style="font-weight: 600;"><?= $a['nama_area'] ?></td>
+                                <td><?= $a['kapasitas'] ?> Kendaraan</td>
+                                <td><span class="badge badge-pink"><?= $a['terisi'] ?> Unit</span></td>
+                                <td style="text-align: right;">
+                                    <a href="?hapus=<?= $a['id_area'] ?>" class="btn-custom btn-danger" style="padding: 6px 14px; font-size: 12px; width: auto;" onclick="return confirm('Hapus area permanen?')"><i class="fa-solid fa-trash"></i> Hapus</a>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 </body>
 </html>

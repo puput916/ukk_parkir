@@ -41,52 +41,53 @@ $selected_id = isset($_GET['id']) ? $_GET['id'] : '';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="top-nav">
-        <div class="nav-brand">
-            <i class="fa-solid fa-square-parking"></i> PARKIR-PRO <span style="font-size: 14px; color: var(--text-muted); font-weight: 500;">| Petugas Loket</span>
-        </div>
-        <div class="nav-links">
-            <a href="transaksi.php">Parkir Aktif</a>
-            <a href="masuk.php">Check-In Kendaraan</a>
-            <a href="keluar.php" class="active">Check-Out Kendaraan</a>
-        </div>
-        <div class="nav-user">
-            <span style="font-size: 14px; font-weight: 600;"><i class="fa-regular fa-circle-user" style="margin-right: 6px;"></i><?= $_SESSION['user']['nama_lengkap'] ?></span>
-            <a href="../logout.php" class="nav-logout"><i class="fa-solid fa-arrow-right-from-bracket" style="margin-right: 4px;"></i> Logout</a>
-        </div>
-    </nav>
-    <div class="container">
-        <div style="display: flex; justify-content: center;">
-            <div class="form-card" style="width: 100%; max-width: 500px;">
-                <h2 style="margin-top: 0; margin-bottom: 24px; text-align: center;"><i class="fa-solid fa-money-bill-wave" style="color: #10b981; margin-right: 8px;"></i> Check-Out & Pembayaran</h2>
-                
-                <?php if(empty($aktif)): ?>
-                    <div style="text-align: center; color: var(--text-muted); padding: 20px;">
-                        <i class="fa-solid fa-car-side fa-2x" style="margin-bottom: 10px; opacity: 0.5;"></i><br>
-                        Tidak ada kendaraan parkir yang bisa di-check-out saat ini.
-                    </div>
-                <?php else: ?>
-                    <form method="POST">
-                        <label><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px; color: var(--text-muted);"></i> Pilih Kendaraan (Plat Nomor)</label>
-                        <select name="id_parkir" required style="font-family: monospace; font-size: 15px;">
-                            <option value="">-- Pilih Kendaraan --</option>
-                            <?php foreach($aktif as $a): ?>
-                                <?php $sel = ($a['id_parkir'] == $selected_id) ? 'selected' : ''; ?>
-                                <option value="<?= $a['id_parkir'] ?>" <?= $sel ?>>
-                                    <?= $a['plat_nomor'] ?> - <?= $a['nama_area'] ?> (Masuk: <?= date('d/m H:i', strtotime($a['waktu_masuk'])) ?>)
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                        <br><br>
-                        <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-bottom: 20px;">
-                            <p style="margin: 0; font-size: 13.5px; color: #1e3a8a;"><i class="fa-solid fa-circle-info" style="margin-right: 5px;"></i> Klik tombol di bawah untuk mengkalkulasi durasi dan total biaya parkir. Struk otomatis akan dicetak setelahnya.</p>
-                        </div>
-                        
-                        <button type="submit" name="proses_keluar" class="btn-custom" style="padding: 14px; font-size: 16px; border-radius: 12px; background: #10b981;"><i class="fa-solid fa-check-double" style="margin-right: 5px;"></i> Hitung & Selesaikan Pembayaran</button>
-                    </form>
-                <?php endif; ?>
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><img src="../assets/logo_web.png" alt="Logo"></div>
+            <div class="sidebar-label">Menu</div>
+                        <ul class="sidebar-menu">
+                <a href="transaksi.php" ><span class="icon-box"><i class="fa-solid fa-car-side"></i></span> <span>Parkir Aktif</span></a>
+                <a href="masuk.php" ><span class="icon-box"><i class="fa-solid fa-right-to-bracket"></i></span> <span>Check-In</span></a>
+                <a href="keluar.php" class="active"><span class="icon-box"><i class="fa-solid fa-right-from-bracket"></i></span> <span>Check-Out</span></a>
+            </ul>
+            <div class="sidebar-user">
+                <div class="sidebar-user-info"><div class="avatar"><i class="fa-solid fa-user"></i></div><div class="user-detail"><span><?= $_SESSION['user']['nama_lengkap'] ?></span><small><?= $_SESSION['user']['role'] ?></small></div></div>
+                <a href="../logout.php" class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
-        </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header"><h1><i class="fa-solid fa-money-bill-wave"></i>Check-Out & Pembayaran</h1></div>
+            <div style="display: flex; justify-content: center;">
+                <div class="form-card" style="width: 100%; max-width: 480px;">
+                    <?php if(empty($aktif)): ?>
+                        <div class="empty-state">
+                            <i class="fa-solid fa-car-side"></i>
+                            <p>Tidak ada kendaraan parkir yang bisa di-check-out saat ini.</p>
+                        </div>
+                    <?php else: ?>
+                        <form method="POST">
+                            <label><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px; color: var(--text-muted);"></i> Pilih Kendaraan (Plat Nomor)</label>
+                            <select name="id_parkir" required style="font-family: monospace; font-size: 15px;">
+                                <option value="">-- Pilih Kendaraan --</option>
+                                <?php foreach($aktif as $a): ?>
+                                    <?php $sel = ($a['id_parkir'] == $selected_id) ? 'selected' : ''; ?>
+                                    <option value="<?= $a['id_parkir'] ?>" <?= $sel ?>>
+                                        <?= $a['plat_nomor'] ?> - <?= $a['nama_area'] ?> (Masuk: <?= date('d/m H:i', strtotime($a['waktu_masuk'])) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+
+                            <div class="info-box" style="margin-top: 8px;">
+                                <p><i class="fa-solid fa-circle-info"></i> Klik tombol di bawah untuk mengkalkulasi durasi dan total biaya parkir. Struk otomatis akan dicetak setelahnya.</p>
+                            </div>
+                            
+                            <button type="submit" name="proses_keluar" class="btn-custom btn-success" style="padding: 14px; font-size: 16px;"><i class="fa-solid fa-check-double"></i> Hitung & Selesaikan Pembayaran</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </main>
     </div>
 </body>
 </html>
