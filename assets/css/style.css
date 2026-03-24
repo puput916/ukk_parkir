@@ -113,12 +113,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 40px;
+    margin-bottom: 28px;
 }
 
 .login-logo img {
-    height: 90px;
-    width: auto;
+    width: 300px;
+    height: auto;
 }
 
 .login-form-box h2 {
@@ -226,15 +226,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 28px 24px 20px;
+    padding: 20px 10px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 8px;
+    flex-shrink: 0;
 }
 
 .sidebar-logo img {
-    height: 65px;
-    width: auto;
+    width: 200px;
+    height: auto;
     filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25)) brightness(1.15);
 }
 

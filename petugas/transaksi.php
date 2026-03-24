@@ -12,7 +12,7 @@ $aktif = query("SELECT t.*, k.plat_nomor, a.nama_area FROM tb_transaksi t
 <html>
 <head>
     <title>Petugas - Parkir Aktif</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css?v=6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
