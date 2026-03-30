@@ -1,0 +1,134 @@
+================================================================================
+          TUTORIAL INSTALASI APLIKASI PARKIR (UKK PARKIR)
+          Menggunakan LARAGON (Lebih Mudah, Cepat & Anti Error)
+          (Panduan Khusus untuk Pemula / Owner)
+================================================================================
+
+Halo! Panduan ini dibuat selangkah demi selangkah agar siapapun bisa 
+menginstal aplikasi ini dengan mudah. Kita akan menggunakan aplikasi bernama 
+LARAGON karena jauh lebih mudah digunakan dan meminimalisir error dibandingkan XAMPP.
+
+Mohon ikuti langkah-langkah di bawah ini secara perlahan dan berurutan.
+
+================================================================================
+TAHAP 1: PERSIAPAN PENTING (WAJIB DIBACA) ⚠️
+================================================================================
+Jika di komputer/laptop Anda sebelumnya sudah terinstal XAMPP, Anda HARUS mematikannya:
+1. Buka aplikasi XAMPP Control Panel.
+2. Pastikan tulisan Apache dan MySQL tidak ada yang di-"Start" (Stop semuanya).
+3. Tutup XAMPP (Klik tombol "Quit" atau pastikan icon XAMPP hilang dari pojok kanan bawah layar).
+
+(Sangat disarankan untuk uninstall/hapus XAMPP saja sekalian agar tidak ada bentrok error).
+
+================================================================================
+TAHAP 2: DOWNLOAD & INSTALL APLIKASI YANG DIBUTUHKAN
+================================================================================
+
+A. INSTALL LARAGON (Server Aplikasi)
+   1. Buka browser internet (Chrome/Edge/Firefox).
+   2. Buka link ini: https://laragon.org/download/
+   3. Scroll (geser) ke bawah, cari dan klik tombol biru: "Download Laragon Full"
+   4. Tunggu sampai proses download selesai.
+   5. Buka file instalasi yang didownload tadi.
+   6. Klik "Next" terus menerus, lalu klik "Install", dan terakhir klik "Finish".
+      (Jika muncul peringatan "Windows Firewall", centang semua kotaknya lalu klik "Allow Access").
+
+B. INSTALL GIT (Untuk Mendownload File Projek)
+   1. Buka browser dan buka link ini: https://git-scm.com/download/win
+   2. Pilih / Klik tulisan "64-bit Git for Windows Setup".
+   3. Buka file yang didownload, lalu klik "Next" terus menerus sampai selesai.
+
+================================================================================
+TAHAP 3: MENYIAPKAN FILE PROJEK APLIKASI
+================================================================================
+
+1. Buka aplikasi Laragon dari menu Start Windows.
+2. Klik tombol "Start All" yang ukurannya paling besar di layar Laragon.
+   >> Tunggu sampai tulisan Apache (biasanya port 80) dan MySQL (biasanya port 3306) muncul info "Running".
+   
+3. Masih di aplikasi Laragon, klik tombol "Terminal" (jendela hitam mirip cmd akan muncul).
+4. Ketik perintah ini persis tanpa tanda kutip: "cd C:\laragon\www" lalu tekan Enter.
+5. Selanjutnya ketik perintah ini: 
+   "git clone https://github.com/puput916/ukk_parkir.git"
+   Lalu tekan Enter.
+   >> Tunggu sampai proses download selesai 100%.
+
+================================================================================
+TAHAP 4: MEMBUAT DATA PENYIMPANAN (DATABASE)
+================================================================================
+
+Laragon sudah punya aplikasi buka database yang sangat gampang, namanya HeidiSQL.
+
+1. Di aplikasi Laragon, klik tombol "Database".
+2. Akan muncul jendela baru bernama "HeidiSQL". Langsung saja klik tombol "Open" atau "Buka" di bagian paling bawah.
+3. Di layar sebelah kiri, akan ada tulisan "Unsaved" atau "localhost". Klik KANAN pada tulisan tersebut.
+4. Pilih "Create new" -> lalu pilih "Database".
+5. Akan muncul kotak kecil. 
+   >> Ketik nama database: ukk_parkir
+   >> (Pastikan huruf kecil semua dan menggunakan _ ).
+   >> Klik tombol "OK".
+
+6. Sekarang, cari dan klik tulisan database "ukk_parkir" yang baru saja dibuat di layar pelan kanan/kiri tersebut.
+7. Di bagian atas layar, klik menu "File" -> pilih "Load SQL file...".
+8. Cari file bernama ukk_parkir.sql yang ada di dalam folder projek. Buka folder/lokasi ini:
+   C:\laragon\www\ukk_parkir\database\ukk_parkir.sql
+   lalu klik "Open".
+9. Jika ditanya "Auto-detect...?", klik saja "Yes" / "OK".
+10. Terakhir, tekan tombol "F9" di keyboard Anda (atau klik tombol lingkaran/panah biru kecil bernama Execute di atas layar).
+    >> Berhasil! Database sudah terisi. Anda boleh menutup jendela HeidiSQL.
+
+================================================================================
+TAHAP 5: BUKA APLIKASI PARKIR 🎉
+================================================================================
+
+Kerennya Laragon adalah kita bisa pakai nama domain (alamat web) buatan sendiri!
+
+1. Buka browser internet Anda (Chrome/Edge).
+2. Ketik persis seperti ini di baris atas (tempat biasa ketik google.com):
+   
+   ukk_parkir.test
+
+   Lalu tekan Enter.
+3. SELESAI! Aplikasi Parkir Anda sudah terbuka dan siap digunakan untuk laporan UKK!
+
+
+================================================================================
+🚨 KEMUNGKINAN ERROR & CARA MENGATASINYA (TROUBLESHOOTING) 🚨
+================================================================================
+Jika ada masalah/error di tengah jalan, jangan bingung, baca solusinya di bawah ini:
+
+1. ERROR: Tombol "Start All" di Laragon tidak jalan / Apache gagal (Port 80 In Use)
+   - Penyebab: Ada aplikasi lain yang diam-diam menyala dan menggunakan Port 80 (biasanya XAMPP yang belum dimatikan secara total atau Skype).
+   - Solusi: 
+     a. Pastikan XAMPP benar-benar sudah ditutup atau di-uninstall saja.
+     b. Jika masih bandel, kita ganti port Laragon: 
+        Klik KANAN pada area kosong di layar Laragon -> Pilih 'Preferences' -> Tab 'Services & Ports' -> Ubah Port Apache dari 80 menjadi 8080.
+        Jika diubah, nanti saat buka web TAHAP 5, ganti alamatnya jadi: http://localhost:8080/ukk_parkir
+
+2. ERROR: MySQL gagal Start (Port 3306 In Use)
+   - Penyebab: Database bawaan XAMPP masih menyala di belakang layar Windows Anda.
+   - Solusi: 
+     a. Tekan tombol "Windows + R" di keyboard bersamaan, ketik "services.msc", lalu Enter.
+     b. Cari tulisan "MySQL" di dalam daftar aplikasi yang muncul (scroll ke bawah).
+     c. Klik kanan pada MySQL tersebut -> Pilih "Stop", atau klik "Properties" dan ubah tipe jadi "Manual".
+     d. Setelah dimatikan, klik tombol "Start All" di Laragon lagi.
+
+3. ERROR: Buka web "ukk_parkir.test" Muncul "Site can't be reached" atau "Not Found"
+   - Penyebab: Fitur Auto-Virtual Host bawaan Laragon belum disetujui Windows atau tidak mendeteksi foldernya.
+   - Solusi: 
+     a. Solusi Pertama: Coba akses menggunakan alamat localhost standar. Ketik di browser: http://localhost/ukk_parkir
+     b. Solusi Kedua: Di aplikasi Laragon, klik Kanan sembarang tempat -> Preferences -> General -> Ceklis bagian "Auto virtual hosts". Stop lalu Start lagi Laragon-nya.
+
+4. ERROR: Di dalam web muncul tulisan kuning/merah "Warning: mysqli_connect()..." atau "Database Connection Failed"
+   - Penyebab: Nama database belum dibuat di HeidiSQL (TAHAP 4) atau Anda salah ketik nama database (contoh: ukk_pakir tanpa r).
+   - Solusi: 
+     Buka kembali Laragon -> Database. Ulangi TAHAP 4. Pastikan namanya persis "ukk_parkir". 
+
+5. ERROR: Folder "www" saat di Terminal (TAHAP 3) Tidak Ketemu / "The system cannot find the path"
+   - Penyebab: Anda menginstal Laragon bukan di C:, melainkan misal di D: atau E:.
+   - Solusi: 
+     Silakan ganti perintah pada TAHAP 3 bagian 4. Jika Anda instal di D, maka ketikkannya: "cd D:\laragon\www" pastikan ini disesuaikan dengan partisi saat instal Anda.
+
+================================================================================
+Semoga panduan ini sangat membantu Owner. Sukses untuk pengujiannya!
+================================================================================

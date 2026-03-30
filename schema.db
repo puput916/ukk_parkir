@@ -14,13 +14,15 @@ CREATE TABLE tb_area_parkir (
     id_area INT AUTO_INCREMENT PRIMARY KEY,
     nama_area VARCHAR(100) NOT NULL,
     kapasitas INT NOT NULL DEFAULT 0,
-    terisi INT NOT NULL DEFAULT 0
+    terisi INT NOT NULL DEFAULT 0,
+    status_aktif TINYINT(1) DEFAULT 1
 );
 
 CREATE TABLE tb_tarif (
     id_tarif INT AUTO_INCREMENT PRIMARY KEY,
     jenis_kendaraan VARCHAR(50) NOT NULL,
-    tarif_per_jam INT NOT NULL
+    tarif_per_jam INT NOT NULL,
+    status_aktif TINYINT(1) DEFAULT 1
 );
 
 CREATE TABLE tb_kendaraan (

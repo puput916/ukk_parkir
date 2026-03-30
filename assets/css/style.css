@@ -820,6 +820,116 @@ input::placeholder {
     .stats-grid { grid-template-columns: 1fr; }
 }
 
+
+/* ========================================
+   ACTION BUTTONS (Inline Row Actions)
+   ======================================== */
+.action-buttons {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.btn-action.btn-edit {
+    background: #dbeafe;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+.btn-action.btn-edit:hover {
+    background: #2563eb;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
+}
+
+.btn-action.btn-delete {
+    background: #fee2e2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+.btn-action.btn-delete:hover {
+    background: #dc2626;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.3);
+}
+
+.btn-action.btn-warn {
+    background: #fef3c7;
+    color: #d97706;
+    border-color: #fde68a;
+}
+.btn-action.btn-warn:hover {
+    background: #d97706;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(217, 119, 6, 0.3);
+}
+
+.btn-action.btn-activate {
+    background: #d1fae5;
+    color: #059669;
+    border-color: #a7f3d0;
+}
+.btn-action.btn-activate:hover {
+    background: #059669;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(5, 150, 105, 0.3);
+}
+
+/* ========================================
+   ALERT SUCCESS
+   ======================================== */
+.alert-success {
+    background: #d1fae5;
+    border: 1px solid #a7f3d0;
+    color: #047857;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+   BADGE MUTED (Nonaktif)
+   ======================================== */
+.badge-muted {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+/* ========================================
+   ROW NONAKTIF
+   ======================================== */
+.row-nonaktif td {
+    opacity: 0.55;
+}
+
 /* ========================================
    PRINT STYLES
    ======================================== */
